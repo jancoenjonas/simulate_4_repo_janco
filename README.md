@@ -41,9 +41,9 @@ In dit spannende project voor het vak Simulate 4 ontwikkelt Janco Sambaer, een a
 
 #### Week 13-16: Duurzaamheid en Toekomstige Ontwikkeling
 - **Activiteiten**: Ontwikkelen van een duurzaamheidsplan voor de lange termijn 📆, de gebruikersbetrokkenheid verhogen 📣, en voorbereiden op de toekomstige tech-ontdekkingsreizen 🚀.
-- **
 
-Doel**: Zorgen voor blijvend succes en de basis leggen voor toekomstige innovaties.
+
+Doel: Zorgen voor blijvend succes en de basis leggen voor toekomstige innovaties.
 - **Uitdagingen**: Het vasthouden van de interesse van gebruikers en vooruitkijken.
 - **Impact**: Een blijvende erfenis en een springplank voor toekomstige projecten.
 
