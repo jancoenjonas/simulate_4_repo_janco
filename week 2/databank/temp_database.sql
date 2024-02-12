@@ -64,7 +64,6 @@ INSERT INTO streaks (user_id, current_streak, longest_streak) VALUES
 (2, 7, 12);
 
 -- Inserting sample NFC tag data
--- (You'll need to replace user_id with the actual IDs from the users table)
 INSERT INTO nfc_tags (tag_data, user_id) VALUES
 ('04:A7:83:AE', 1),
 ('04:B6:22:AF', 2);
