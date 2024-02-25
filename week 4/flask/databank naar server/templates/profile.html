@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Profile</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='profile_css.css') }}">
+    <script src="{{ url_for('static', filename='feedback_script.js') }}"></script>
+</head>
+<body>
+<div class="menu-icon" onclick="toggleNavMenu()">☰</div>
+<div class="profile-container" style="margin-top: 100px;">
+    <h1>User Profile</h1>
+
+    <!-- User Information Section -->
+    <div class="profile-section">
+        <h2>User Information</h2>
+        <div class="profile-detail">
+            <label>Role:</label>
+            <span>{{ current_user.role }}</span> <!-- Display user's role -->
+        </div>
+        <div class="profile-detail">
+            <label>Name:</label>
+            <span>{{ username }}</span> <!-- Display user's name -->
+        </div>
+        <div class="profile-detail">
+            <label>UUID:</label>
+            <span>{{ uuid }}</span> <!-- Display user's UUID -->
+        </div>
+        <div class="profile-detail">
+            <label>NFC Hex:</label>
+            <span>{{ nfc_hex }}</span> <!-- Display user's NFC Hex -->
+        </div>
+    </div>
+
+    <!-- Streak Information Section -->
+    <div class="profile-section">
+        <h2>Streak Information</h2>
+        <div class="profile-detail">
+            <label>Streak:</label>
+            <span>{{ current_streak }}</span> <!-- Display user's current streak -->
+        </div>
+        <div class="profile-detail">
+            <label>Longest Streak:</label>
+            <span>{{ longest_streak }}</span> <!-- Display user's longest streak -->
+        </div>
+    </div>
+
+    <!-- Enrollment Information Section -->
+    <div class="profile-section">
+        <h2>Enrollment Information</h2>
+        <div class="profile-detail">
+            <label>Classes Enrolled:</label>
+            <ul>
+                {% for class in classes_enrolled %}
+                <li>{{ class }}</li> <!-- Display user's enrolled classes -->
+                {% else %}
+                <li>No classes enrolled.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+
+</div>
+
+<!-- Navigation Menu -->
+<div class="nav-menu" id="nav-menu">
+    <div class="nav-buttons-container">
+        <div class="nav-item"><a href="{{ url_for('profile') }}">Profile</a></div>
+        <!-- Agenda Button -->
+        {% if current_user.role == 'TEACHER' %}
+        <div class="nav-item">
+            <a href="{{ url_for('teacher_attendance') }}">Agenda</a>
+        </div>
+        {% elif current_user.role == 'STUDENT' %}
+        <div class="nav-item">
+            <a href="{{ url_for('student_schedule') }}">Agenda</a>
+        </div>
+        {% endif %}
+        <div class="nav-item">
+            <a href="{{ url_for('feedback_form') }}">Feedback</a>
+        </div>
+        <div class="nav-item"><a href="{{ url_for('logout') }}">Logout</a></div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Student Schedule</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='student_agenda.css') }}">
+    <script src="{{ url_for('static', filename='student_agenda.js') }}"></script>
+</head>
+<body>
+<div class="menu-icon" onclick="toggleNavMenu()">☰</div>
+<div class="profile-container" style="margin-top: 100px;">
+    <h1>Student Schedule</h1>
+    <table>
+        <!-- Table headers -->
+        <tr>
+            <th>Time Slot</th>
+            <th>Monday</th>
+            <th>Tuesday</th>
+            <th>Wednesday</th>
+            <th>Thursday</th>
+            <th>Friday</th>
+        </tr>
+        <!-- Generate table rows for schedule times -->
+        {% for hour in range(8, 18) %}
+        <tr>
+            <td>{{ hour }}:00</td>
+            {% for day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'] %}
+            {% if day == 'Wednesday' %}
+            <td class="no-class"></td> <!-- Ensures Wednesday is empty -->
+            {% else %}
+            {% set lessons_for_day = schedule.get(day, []) %}
+            {% set class_found = false %}
+            {% for lesson in lessons_for_day %}
+            {% if lesson['time'].startswith('%02d' % hour) and not class_found %}
+            <td class="{{ lesson['attendance'].lower() }}">{{ lesson['name'] }}</td>
+            {% set class_found = true %}
+            {% endif %}
+            {% endfor %}
+            {% if not class_found %}
+            <td class="no-class"></td>
+            {% endif %}
+            {% endif %}
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<!-- Navigation Menu -->
+<div class="nav-menu" id="nav-menu">
+    <div class="nav-buttons-container">
+        <div class="nav-item"><a href="{{ url_for('profile') }}">Profile</a></div>
+        <!-- Agenda Button -->
+        <div class="nav-item">
+            <a href="{{ url_for('student_schedule') }}">Agenda</a>
+        </div>
+        <div class="nav-item">
+            <a href="{{ url_for('feedback_form') }}">Feedback</a>
+        </div>
+        <div class="nav-item">
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+
