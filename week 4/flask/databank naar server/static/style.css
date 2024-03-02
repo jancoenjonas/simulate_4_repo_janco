@@ -1,15 +1,36 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Feedback Form</title>
-    <style>
+
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
             background-color: #f7f7f7;
         }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .attended {
+            background-color: #90ee90; /* Green */
+        }
+        .missed {
+            background-color: #ffcccb; /* Red */
+        }
+        .upcoming {
+            background-color: #ffda89; /* Orange */
+        }
+        .no-class {
+            background-color: white;
+        }
+
         .menu-icon {
             cursor: pointer;
             font-size: 24px;
@@ -85,7 +106,13 @@
             background-color: #0056b3;
             color: #fff;
         }
-        .feedback-container {
+        h1 {
+            text-align: center;
+            color: #007bff;
+            margin-top: 50px;
+            font-size: 36px;
+        }
+        .profile-container {
             margin: 2em auto;
             padding: 2em;
             background: #fff;
@@ -93,74 +120,22 @@
             width: fit-content;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
         }
-        input[type="text"],
-        input[type="email"],
-        textarea {
-            width: 100%;
-            padding: 10px;
-            margin: 5px 0;
-            box-sizing: border-box;
-            border: 2px solid #ccc;
-            border-radius: 4px;
-            resize: vertical;
-        }
-        input[type="submit"] {
-            background-color: #007bff;
-            color: white;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        input[type="submit"]:hover {
-            background-color: #0056b3;
-        }
-    </style>
-</head>
-<body>
-<div class="menu-icon" onclick="toggleNavMenu()">☰</div>
+        .attendance-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px; /* Adjust the gap between buttons as needed */
+}
 
-<!-- Feedback Form -->
-<div class="feedback-container">
-    <h2>Feedback Form</h2>
-    <form action="{{ url_for('submit_feedback') }}" method="post">
-        <label for="name">Name:</label>
-        <input type="text" id="name" name="name" required>
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required>
-        <label for="message">Message:</label>
-        <textarea id="message" name="message" rows="4" required></textarea>
-        <input type="submit" value="Submit">
-    </form>
-</div>
+.attendance-button {
+    padding: 10px 20px;
+    background-color: #6c7ae0; /* A shade of blue */
+    color: white;
+    text-align: center;
+    border-radius: 20px; /* This gives the pill shape */
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
 
-<!-- Navigation Menu -->
-<div class="nav-menu" id="nav-menu">
-    <div class="nav-buttons-container">
-        <div class="nav-item"><a href="{{ url_for('profile') }}">Profile</a></div>
-        <!-- Agenda Button -->
-        <div class="nav-item">
-            <a href="{{ url_for('student_schedule') }}">Agenda</a>
-        </div>
-        <div class="nav-item">
-            <a href="{{ url_for('feedback_form') }}">Feedback</a>
-        </div>
-        <div class="nav-item">
-            <a href="{{ url_for('logout') }}">Logout</a>
-        </div>
-    </div>
-</div>
-
-<script>
-    function toggleNavMenu() {
-        var navMenu = document.getElementById("nav-menu");
-        navMenu.classList.toggle("show");
-        var navItems = document.querySelectorAll(".nav-item");
-        navItems.forEach(function(item) {
-            item.classList.toggle("show");
-        });
-    }
-
-</script>
-</body>
-</html>
+.attendance-button:hover {
+    background-color: #575fcf; /* A slightly darker shade for hover effect */
+}

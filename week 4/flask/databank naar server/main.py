@@ -19,8 +19,6 @@ app.config['MAIL_DEFAULT_SENDER'] = MAIL_DEFAULT_SENDER
 
 mail = Mail(app)
 
-
-
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
@@ -248,38 +246,39 @@ def teacher_attendance():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # Fetch the lessons taught by the teacher
-    cursor.execute(
-        "SELECT l.id, l.day, l.time, l.name as lesson_name "
-        "FROM lessons l "
-        "WHERE l.teacher_id = %s", (current_user.id,)
-    )
+    # Fetch the lessons taught by the teacher and attendance ordered by student
+    cursor.execute("""
+        SELECT u.username, u.id as student_id, l.day, l.time, l.name as lesson_name, 
+               l.attendance, l.id as lesson_id
+        FROM student_lessons sl
+        JOIN lessons l ON sl.lesson_id = l.id
+        JOIN users u ON sl.student_id = u.id
+        WHERE l.teacher_id = %s
+        ORDER BY u.username, l.day, l.time
+    """, (current_user.id,))
     lessons = cursor.fetchall()
 
-    # Fetch student attendance for these lessons
+    # Organize the data by student for the template
     attendance_data = {}
     for lesson in lessons:
-        cursor.execute(
-            "SELECT u.username, sl.lesson_id "
-            "FROM student_lessons sl "
-            "JOIN users u ON sl.student_id = u.id "
-            "WHERE sl.lesson_id = %s", (lesson['id'],)
-        )
-        students = cursor.fetchall()
-        for student in students:
-            key = (student['username'], lesson['day'])
-            if key not in attendance_data:
-                attendance_data[key] = []
-            attendance_data[key].append({
-                'time': lesson['time'],
-                'lesson_name': lesson['lesson_name'],
-                'attendance': 'UPCOMING'  # Modify as per your attendance logic
-            })
+        student_name = lesson['username']
+        student_id = lesson['student_id']  # This should now be correctly fetched from the query
+        if student_name not in attendance_data:
+            attendance_data[student_name] = []
+        attendance_data[student_name].append({
+            'student_id': student_id,
+            'lesson_id': lesson['lesson_id'],
+            'day': lesson['day'],
+            'time': lesson['time'],
+            'lesson_name': lesson['lesson_name'],
+            'attendance': lesson['attendance']
+        })
 
     cursor.close()
     conn.close()
 
     return render_template('teacher_attendance.html', attendance_data=attendance_data)
+
 
 
 @app.route('/teacher/student_performance/<student_id>')
@@ -350,6 +349,58 @@ def submit_feedback():
 
         flash('Thank you for your feedback! It has been sent to the administrator.')
         return redirect(url_for('feedback_form'))
+
+
+@app.route('/update_attendance', methods=['POST'])
+@login_required
+def update_attendance():
+    # Check if the user is a teacher
+    if current_user.role != 'TEACHER':
+        return {"message": "Access Denied"}, 403
+
+    # Receive and print the JSON data for debugging
+    data = request.json
+    print("Received data:", data)
+
+    # Extract student_id, lesson_id, and new_status from the received data
+    student_id = data.get('studentId')
+    lesson_id = data.get('lessonId')
+    new_status = data.get('newStatus')
+
+    # Check if the necessary data is present
+    if not student_id or not lesson_id or not new_status:
+        return {"message": "Missing data"}, 400
+
+    # Connect to the database
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        # Execute the SQL query to update the attendance
+        # Assuming there is an attendance column in the student_lessons join table
+        cursor.execute("""
+            UPDATE student_lessons 
+            SET attendance = %s 
+            WHERE student_id = %s AND lesson_id = %s
+        """, (new_status, student_id, lesson_id))
+        conn.commit()
+
+        # Check if the update was successful
+        if cursor.rowcount == 0:
+            return {"message": "No record updated, check the student ID and lesson ID"}, 404
+
+        message = f"Attendance updated successfully for student ID: {student_id} and lesson ID: {lesson_id}"
+    except Exception as e:
+        # Rollback in case of error and print the error message
+        conn.rollback()
+        print(f"Error updating attendance: {e}")  # Debug print
+        message = f"Error updating attendance: {str(e)}"
+    finally:
+        # Close the database connection
+        cursor.close()
+        conn.close()
+
+    # Return a success message
+    return {"message": message}
 
 
 if __name__ == '__main__':
