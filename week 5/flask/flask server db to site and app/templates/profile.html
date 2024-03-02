@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Profile</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='profile_css.css') }}">
-    <script src="{{ url_for('static', filename='feedback_script.js') }}"></script>
+
 </head>
 <body>
 <div class="menu-icon" onclick="toggleNavMenu()">☰</div>
@@ -21,14 +21,6 @@
         <div class="profile-detail">
             <label>Name:</label>
             <span>{{ username }}</span> <!-- Display user's name -->
-        </div>
-        <div class="profile-detail">
-            <label>UUID:</label>
-            <span>{{ uuid }}</span> <!-- Display user's UUID -->
-        </div>
-        <div class="profile-detail">
-            <label>NFC Hex:</label>
-            <span>{{ nfc_hex }}</span> <!-- Display user's NFC Hex -->
         </div>
     </div>
 
@@ -60,28 +52,76 @@
         </div>
     </div>
 
+    <!-- Scoreboard Sections -->
+    <!-- Top Longest Streaks -->
+    <div class="profile-section arcade-scoreboard">
+        <h2>Top Longest Streaks</h2>
+        <ol>
+            {% for streak in top_longest_streaks %}
+            <li>{{ streak.username }}: {{ streak.longest_streak }}</li>
+            {% endfor %}
+        </ol>
+    </div>
+
+    <!-- Top Current Streaks -->
+    <div class="profile-section arcade-scoreboard">
+        <h2>Top Current Streaks</h2>
+        <ol>
+            {% for streak in top_current_streaks %}
+            <li>{{ streak.username }}: {{ streak.current_streak }}</li>
+            {% endfor %}
+        </ol>
+    </div>
+
+    <!-- User's Ranking Information -->
+    <div class="profile-section arcade-scoreboard-ranking">
+        <h2>Your Rankings</h2>
+        <div class="profile-detail">
+            <label>Longest Streak Rank:</label>
+            <span>{{ longest_streak_rank }}</span>
+        </div>
+        <div class="profile-detail">
+            <label>Current Streak Rank:</label>
+            <span>{{ current_streak_rank }}</span>
+        </div>
+    </div>
 
 </div>
 
 <!-- Navigation Menu -->
 <div class="nav-menu" id="nav-menu">
     <div class="nav-buttons-container">
+        <!-- Navigation items -->
+    </div>
+</div>
+<!-- Navigation Menu -->
+<div class="nav-menu" id="nav-menu">
+    <div class="nav-buttons-container">
         <div class="nav-item"><a href="{{ url_for('profile') }}">Profile</a></div>
         <!-- Agenda Button -->
-        {% if current_user.role == 'TEACHER' %}
-        <div class="nav-item">
-            <a href="{{ url_for('teacher_attendance') }}">Agenda</a>
-        </div>
-        {% elif current_user.role == 'STUDENT' %}
         <div class="nav-item">
             <a href="{{ url_for('student_schedule') }}">Agenda</a>
         </div>
-        {% endif %}
         <div class="nav-item">
             <a href="{{ url_for('feedback_form') }}">Feedback</a>
         </div>
-        <div class="nav-item"><a href="{{ url_for('logout') }}">Logout</a></div>
+        <div class="nav-item">
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
     </div>
 </div>
 </body>
+<script>
+// Toggle navigation menu
+function toggleNavMenu() {
+    var menu = document.getElementById('nav-menu');
+    if (menu.style.display === 'block') {
+        menu.style.display = 'none';
+    } else {
+        menu.style.display = 'block';
+    }
+}
+
+</script>
+
 </html>

@@ -82,13 +82,13 @@ def load_user(user_id):
 
     # Fetch classes enrolled
     cursor.execute("""
-        SELECT lessons.name 
+        SELECT lessons.title 
         FROM lessons 
         JOIN student_lessons ON lessons.id = student_lessons.lesson_id 
         WHERE student_lessons.student_id = %s
     """, (user_id,))
     classes = cursor.fetchall()
-    user.classes_enrolled = [lesson['name'] for lesson in classes]
+    user.classes_enrolled = [lesson['title'] for lesson in classes]
 
     cursor.close()
     conn.close()
@@ -126,6 +126,32 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('login'))
+
+
+@app.route('/test')
+def test():
+    # Database connection parameters
+    db_config = {
+        'host': 'localhost',
+        'user': 'root',
+        'password': 'November0611..',
+        'database': 'flask_local_database_test'
+    }
+
+    # Connect to the database
+    db_connection = mysql.connector.connect(**db_config)
+    cursor = db_connection.cursor(dictionary=True)
+
+    # Query the database for lessons
+    cursor.execute("SELECT * FROM lessons")
+    lessons = cursor.fetchall()
+
+    # Close the connection
+    cursor.close()
+    db_connection.close()
+
+    # Pass the lessons to the template
+    return render_template('test.html', lessons=lessons)
 
 
 @app.route('/')
@@ -175,12 +201,7 @@ def profile():
         cursor.close()
         conn.close()
         flash('User not found.')
-        return redirect(url_for('index'))  # Or handle as needed
-
-    # Fetch user's NFC hex if exists
-    cursor.execute("SELECT tag_data FROM nfc_tags WHERE user_id = %s", (current_user.id,))
-    nfc_data = cursor.fetchone()
-    nfc_hex = nfc_data['tag_data'] if nfc_data else 'No NFC Tag Registered'
+        return redirect(url_for('index'))
 
     # Fetch user's streaks
     cursor.execute("SELECT * FROM streaks WHERE user_id = %s", (current_user.id,))
@@ -188,27 +209,56 @@ def profile():
     current_streak = streaks['current_streak'] if streaks else 0
     longest_streak = streaks['longest_streak'] if streaks else 0
 
+    # Fetch top 10 longest streaks for students
+    cursor.execute(
+        "SELECT users.username, streaks.longest_streak "
+        "FROM streaks "
+        "JOIN users ON streaks.user_id = users.id "
+        "WHERE users.role = 'STUDENT' "
+        "ORDER BY streaks.longest_streak DESC LIMIT 10")
+    top_longest_streaks = cursor.fetchall()
+
+    # Fetch top 10 current streaks for students
+    cursor.execute(
+        "SELECT users.username, streaks.current_streak "
+        "FROM streaks "
+        "JOIN users ON streaks.user_id = users.id "
+        "WHERE users.role = 'STUDENT' "
+        "ORDER BY streaks.current_streak DESC LIMIT 10")
+    top_current_streaks = cursor.fetchall()
+
+    # Determine user's placement for longest streak
+    cursor.execute("SELECT COUNT(*)+1 AS `rank` FROM streaks WHERE longest_streak > %s", (longest_streak,))
+    longest_streak_rank = cursor.fetchone()['rank']
+
+    # Determine user's placement for current streak
+    cursor.execute("SELECT COUNT(*)+1 AS `rank` FROM streaks WHERE current_streak > %s", (current_streak,))
+
+    current_streak_rank = cursor.fetchone()['rank']
+
     # Fetch user's enrolled classes
     cursor.execute(
-        "SELECT DISTINCT lessons.name FROM lessons "
-        "JOIN student_lessons ON lessons.id = student_lessons.lesson_id "
-        "WHERE student_id = %s",
+        "SELECT DISTINCT l.title FROM lessons l "
+        "JOIN student_lessons ON l.id = student_lessons.lesson_id "
+        "WHERE student_lessons.student_id = %s",
         (current_user.id,))
     classes = cursor.fetchall()
+    classes_enrolled = [cls['title'] for cls in classes]
 
     cursor.close()
     conn.close()
 
-    # Convert the classes to a list of unique names
-    classes_enrolled = [cls['name'] for cls in classes] if classes else []
-
     return render_template('profile.html',
                            username=user_details['username'],
-                           uuid=current_user.id,
-                           nfc_hex=nfc_hex,
+                           role=user_details['role'],
+                           major=user_details['major'],
                            current_streak=current_streak,
                            longest_streak=longest_streak,
-                           classes_enrolled=classes_enrolled)
+                           classes_enrolled=classes_enrolled,
+                           top_longest_streaks=top_longest_streaks,
+                           top_current_streaks=top_current_streaks,
+                           longest_streak_rank=longest_streak_rank,
+                           current_streak_rank=current_streak_rank)
 
 
 @app.route('/student/schedule')
@@ -216,7 +266,7 @@ def profile():
 def student_schedule():
     if current_user.role != 'STUDENT':
         return "Access Denied", 403
-
+    '''
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     # Updated query to join with student_lessons table
@@ -235,6 +285,21 @@ def student_schedule():
         schedule[lesson['day']].append(lesson)
 
     return render_template('student_schedule.html', schedule=schedule)
+'''
+    # Connect to the database
+    db_connection = mysql.connector.connect(**db_config)
+    cursor = db_connection.cursor(dictionary=True)
+
+    # Query the database for lessons
+    cursor.execute("SELECT * FROM lessons")
+    lessons = cursor.fetchall()
+
+    # Close the connection
+    cursor.close()
+    db_connection.close()
+
+    # Pass the lessons to the template
+    return render_template('test.html', lessons=lessons)
 
 
 @app.route('/teacher/attendance')
@@ -245,7 +310,7 @@ def teacher_attendance():
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-
+    '''
     # Fetch the lessons taught by the teacher and attendance ordered by student
     cursor.execute("""
         SELECT u.username, u.id as student_id, l.day, l.time, l.name as lesson_name, 
@@ -278,7 +343,29 @@ def teacher_attendance():
     conn.close()
 
     return render_template('teacher_attendance.html', attendance_data=attendance_data)
+'''
+    # Database connection parameters
+    db_config = {
+        'host': 'localhost',
+        'user': 'root',
+        'password': 'November0611..',
+        'database': 'flask_local_database_test'
+    }
 
+    # Connect to the database
+    db_connection = mysql.connector.connect(**db_config)
+    cursor = db_connection.cursor(dictionary=True)
+
+    # Query the database for lessons
+    cursor.execute("SELECT * FROM lessons")
+    lessons = cursor.fetchall()
+
+    # Close the connection
+    cursor.close()
+    db_connection.close()
+
+    # Pass the lessons to the template
+    return render_template('test.html', lessons=lessons)
 
 
 @app.route('/teacher/student_performance/<student_id>')
@@ -340,11 +427,27 @@ def submit_feedback():
         email = request.form['email']
         message = request.form['message']
 
-        # Send email with feedback content
-        msg = Message(subject='Feedback from {}'.format(name),
+        # Fetch user's UUID and NFC hex if exists
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        # Fetch user's NFC hex if exists
+        cursor.execute("SELECT tag_data FROM nfc_tags WHERE user_id = %s", (current_user.id,))
+        nfc_data = cursor.fetchone()
+        nfc_hex = nfc_data['tag_data'] if nfc_data else 'No NFC Tag Registered'
+
+        # Close connection
+        cursor.close()
+        conn.close()
+
+        # Include UUID and NFC hex in the email body
+        full_message = f"Message from {name} ({current_user.id}, NFC: {nfc_hex}):\n\n{message}"
+
+        # Send email with feedback content, including UUID and NFC tag
+        msg = Message(subject=f'Feedback from {name}',
                       recipients=['janco.sambaer@student.kdg.be'],  # Email where you want to receive feedback
                       sender=app.config['MAIL_DEFAULT_SENDER'],  # Sender's email
-                      body=message)
+                      body=full_message)
         mail.send(msg)
 
         flash('Thank you for your feedback! It has been sent to the administrator.')
