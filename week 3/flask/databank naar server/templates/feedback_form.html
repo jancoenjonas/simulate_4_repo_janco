@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Feedback Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f7f7f7;
+        }
+        .menu-icon {
+            cursor: pointer;
+            font-size: 24px;
+            padding: 20px;
+            position: fixed;
+            top: 30px; /* Increased top space */
+            left: 30px; /* Increased left space */
+            z-index: 1000;
+            color: #fff;
+            background-color: #007bff;
+            border-radius: 50%;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .menu-icon:hover {
+            color: #fff;
+            background-color: #0056b3;
+        }
+        .nav-menu {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .nav-menu.show {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 1;
+        }
+        .nav-buttons-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            border-radius: 20px;
+            background-color: #fff;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            transform: translateY(-20px);
+            transition: transform 0.3s ease-in-out;
+        }
+        .nav-buttons-container.show {
+            transform: translateY(0);
+        }
+        .nav-item {
+            margin-top: 10px;
+            margin-bottom: 10px;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+        }
+        .nav-item.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .nav-item:last-child {
+            margin-bottom: 0;
+        }
+        .nav-item a {
+            text-decoration: none;
+            color: #007bff;
+            font-size: 20px;
+            padding: 12px 30px;
+            border-radius: 30px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .nav-item a:hover {
+            background-color: #0056b3;
+            color: #fff;
+        }
+        .feedback-container {
+            margin: 2em auto;
+            padding: 2em;
+            background: #fff;
+            border-radius: 20px;
+            width: fit-content;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+        input[type="text"],
+        input[type="email"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            box-sizing: border-box;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+            resize: vertical;
+        }
+        input[type="submit"] {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<div class="menu-icon" onclick="toggleNavMenu()">☰</div>
+
+<!-- Feedback Form -->
+<div class="feedback-container">
+    <h2>Feedback Form</h2>
+    <form action="{{ url_for('submit_feedback') }}" method="post">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+        <label for="message">Message:</label>
+        <textarea id="message" name="message" rows="4" required></textarea>
+        <input type="submit" value="Submit">
+    </form>
+</div>
+
+<!-- Navigation Menu -->
+<div class="nav-menu" id="nav-menu">
+    <div class="nav-buttons-container">
+        <div class="nav-item"><a href="{{ url_for('profile') }}">Profile</a></div>
+        <!-- Agenda Button -->
+        <div class="nav-item">
+            <a href="{{ url_for('student_schedule') }}">Agenda</a>
+        </div>
+        <div class="nav-item">
+            <a href="{{ url_for('feedback_form') }}">Feedback</a>
+        </div>
+        <div class="nav-item">
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleNavMenu() {
+        var navMenu = document.getElementById("nav-menu");
+        navMenu.classList.toggle("show");
+        var navItems = document.querySelectorAll(".nav-item");
+        navItems.forEach(function(item) {
+            item.classList.toggle("show");
+        });
+    }
+
+</script>
+</body>
+</html>

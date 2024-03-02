@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Attendance Records</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f7f7f7;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .attended {
+            background-color: #90ee90; /* Green */
+        }
+        .missed {
+            background-color: #ffcccb; /* Red */
+        }
+        .upcoming {
+            background-color: #ffda89; /* Orange */
+        }
+        .no-class {
+            background-color: transparent;
+        }
+
+        .menu-icon {
+            cursor: pointer;
+            font-size: 24px;
+            padding: 20px;
+            position: fixed;
+            top: 30px; /* Increased top space */
+            left: 30px; /* Increased left space */
+            z-index: 1000;
+            color: #fff;
+            background-color: #007bff;
+            border-radius: 50%;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .menu-icon:hover {
+            color: #fff;
+            background-color: #0056b3;
+        }
+        .nav-menu {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .nav-menu.show {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 1;
+        }
+        .nav-buttons-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            border-radius: 20px;
+            background-color: #fff;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            transform: translateY(-20px);
+            transition: transform 0.3s ease-in-out;
+        }
+        .nav-buttons-container.show {
+            transform: translateY(0);
+        }
+        .nav-item {
+            margin-top: 10px;
+            margin-bottom: 10px;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+        }
+        .nav-item.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .nav-item:last-child {
+            margin-bottom: 0;
+        }
+        .nav-item a {
+            text-decoration: none;
+            color: #007bff;
+            font-size: 20px;
+            padding: 12px 30px;
+            border-radius: 30px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .nav-item a:hover {
+            background-color: #0056b3;
+            color: #fff;
+        }
+        h1 {
+            text-align: center;
+            color: #007bff;
+            margin-top: 50px;
+            font-size: 36px;
+        }
+        .profile-container {
+            margin: 2em auto;
+            padding: 2em;
+            background: #fff;
+            border-radius: 20px;
+            width: fit-content;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+<div class="menu-icon" onclick="toggleNavMenu()">☰</div>
+<div class="profile-container" style="margin-top: 100px;"> <!-- Increased top margin -->
+    <h1>Attendance Records for Major: {{ major }}</h1>
+    <table>
+        <tr>
+            <th>Student</th>
+            <th>Day</th>
+            <th>Time</th>
+            <th>Lesson</th>
+            <th>Attendance</th>
+        </tr>
+        {% for key, records in attendance_data.items() %}
+            {% for record in records %}
+            <tr>
+                {% if loop.first %}
+                <td rowspan="{{ records|length }}">{{ key[0] }}</td>
+                {% endif %}
+                <td>{{ key[1] }}</td>
+                <td>{{ record.time }}</td>
+                <td>{{ record.lesson_name }}</td>
+                <td class="{{ record.attendance.lower() }}">{{ record.attendance }}</td>
+            </tr>
+            {% endfor %}
+        {% endfor %}
+    </table>
+</div>
+
+<!-- Navigation Menu -->
+<div class="nav-menu" id="nav-menu">
+    <div class="nav-buttons-container">
+        <div class="nav-item"><a href="{{ url_for('profile') }}">Profile</a></div>
+        <div class="nav-item"><a href="{{ url_for('teacher_attendance') }}">Agenda</a></div>
+        <div class="nav-item"><a href="{{ url_for('select_student') }}">Student Performance</a></div>
+        <div class="nav-item">
+            <a href="{{ url_for('feedback_form') }}">Feedback</a>
+        </div>
+        <div class="nav-item"><a href="{{ url_for('logout') }}">Logout</a></div>
+    </div>
+</div>
+
+<script>
+    function toggleNavMenu() {
+        var navMenu = document.getElementById("nav-menu");
+        navMenu.classList.toggle("show");
+        var navItems = document.querySelectorAll(".nav-item");
+        navItems.forEach(function(item) {
+            item.classList.toggle("show");
+        });
+    }
+</script>
+</body>
+</html>
