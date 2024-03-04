@@ -3,25 +3,83 @@
 <head>
     <title>Student Performance</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            text-align: center;
+            font-family: 'Roboto', sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 40px 0;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        #chart-container {
+            width: 60%;
+            height: auto;
+            margin: auto;
+        }
+        canvas {
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+        #chart-legend {
+            display: inline-block;
+            margin-top: 10px;
+        }
+        #chart-legend ul {
+            list-style: none;
+            padding: 0;
+        }
+        #chart-legend ul li {
+            display: inline;
+            padding-left: 30px;
+            position: relative;
+            margin-bottom: 5px;
+            cursor: pointer;
+        }
+        #chart-legend ul li span {
+            border-radius: 5px;
+            padding: 10px;
+            display: inline-block;
+        }
+        #chart-legend ul li span:before {
+            content: '';
+            display: block;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            position: absolute;
+            left: -30px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+    </style>
 </head>
 <body>
-    <h1>Student Performance</h1>
+<h1>Student Performance</h1>
+<div id="chart-container">
     <canvas id="attendanceChart"></canvas>
+</div>
+<div id="chart-legend"></div>
 
-    <script>
+<script>
         var ctx = document.getElementById('attendanceChart').getContext('2d');
         var attendanceChart = new Chart(ctx, {
-            type: 'bar', // of een ander type grafiek
+            type: 'doughnut',
             data: {
-                labels: ['Aanwezig', 'Afwezig', 'Laat', 'Excused'], // Pas dit aan op basis van je data
+                labels: ['Aanwezig', 'Afwezig', 'Laat', 'Excused'],
                 datasets: [{
                     label: 'Aantal Dagen',
-                    data: [12, 5, 2, 1], // Deze data moet worden opgehaald van de server
+                    data: [12, 5, 2, 1],
                     backgroundColor: [
-                        'rgba(54, 162, 235, 0.2)',
-                        'rgba(255, 99, 132, 0.2)',
-                        'rgba(255, 206, 86, 0.2)',
-                        'rgba(75, 192, 192, 0.2)'
+                        'rgba(54, 162, 235, 0.6)',
+                        'rgba(255, 99, 132, 0.6)',
+                        'rgba(255, 206, 86, 0.6)',
+                        'rgba(75, 192, 192, 0.6)'
                     ],
                     borderColor: [
                         'rgba(54, 162, 235, 1)',
@@ -29,17 +87,53 @@
                         'rgba(255, 206, 86, 1)',
                         'rgba(75, 192, 192, 1)'
                     ],
-                    borderWidth: 1
+                    borderWidth: 2
                 }]
             },
             options: {
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
+                responsive: true,
+                maintainAspectRatio: false,
+                legend: {
+                    display: false // Hide the default legend
                 }
             }
         });
-    </script>
+
+        // Custom legend
+        var legendHTML = attendanceChart.generateLegend();
+        var legendContainer = document.getElementById('chart-legend');
+        legendContainer.innerHTML = legendHTML;
+        var legendItems = legendContainer.getElementsByTagName('li');
+        for (var i = 0; i < legendItems.length; i++) {
+            legendItems[i].addEventListener('click', legendClickCallback(i), false);
+            var span = document.createElement('span');
+            span.style.backgroundColor = attendanceChart.data.datasets[0].backgroundColor[i];
+            legendItems[i].appendChild(span);
+        }
+
+        function legendClickCallback(legendItemIndex) {
+            return function() {
+                var meta = attendanceChart.getDatasetMeta(0);
+                var item = meta.data[legendItemIndex];
+
+                // See if we have hidden the already clicked slice
+                var previouslyHidden = item.hidden === true;
+
+                // Hide all slices
+                meta.data.forEach(function(dataItem) {
+                    dataItem.hidden = true;
+                });
+
+                // If it was previously hidden, unhide it
+                item.hidden = previouslyHidden ? false : true;
+
+                // Update the chart
+                attendanceChart.update();
+            };
+        }
+   
+
+
+</script>
 </body>
 </html>
