@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Profile</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='profile_css.css') }}">
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 
 </head>
 <body>
@@ -87,41 +88,36 @@
     </div>
 
 </div>
-
-<!-- Navigation Menu -->
-<div class="nav-menu" id="nav-menu">
-    <div class="nav-buttons-container">
-        <!-- Navigation items -->
-    </div>
-</div>
 <!-- Navigation Menu -->
 <div class="nav-menu" id="nav-menu">
     <div class="nav-buttons-container">
         <div class="nav-item"><a href="{{ url_for('profile') }}">Profile</a></div>
         <!-- Agenda Button -->
+        {% if current_user.role == 'TEACHER' %}
+        <div class="nav-item">
+            <a href="{{ url_for('teacher_attendance') }}">Agenda</a>
+        </div>
+        {% elif current_user.role == 'STUDENT' %}
         <div class="nav-item">
             <a href="{{ url_for('student_schedule') }}">Agenda</a>
         </div>
+        {% endif %}
+        <div class="nav-item"><a href="{{ url_for('select_student') }}">Student Performance</a></div>
         <div class="nav-item">
             <a href="{{ url_for('feedback_form') }}">Feedback</a>
         </div>
-        <div class="nav-item">
-            <a href="{{ url_for('logout') }}">Logout</a>
-        </div>
+        <div class="nav-item"><a href="{{ url_for('logout') }}">Logout</a></div>
     </div>
-</div>
+    <script>
+        function toggleNavMenu() {
+            var menu = document.getElementById('nav-menu');
+            if (menu.style.display === 'flex') {
+                menu.style.display = 'none';
+            } else {
+                menu.style.display = 'flex';
+            }
+        }
+
+    </script>
 </body>
-<script>
-// Toggle navigation menu
-function toggleNavMenu() {
-    var menu = document.getElementById('nav-menu');
-    if (menu.style.display === 'block') {
-        menu.style.display = 'none';
-    } else {
-        menu.style.display = 'block';
-    }
-}
-
-</script>
-
 </html>

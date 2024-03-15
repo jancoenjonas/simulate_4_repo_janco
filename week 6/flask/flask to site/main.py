@@ -50,48 +50,48 @@ class User(UserMixin):
 @login_manager.user_loader
 def load_user(user_id):
     conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
+    try:
+        with conn.cursor(dictionary=True) as cursor:
+            # Fetch user details
+            cursor.execute("SELECT id, username, role, major FROM users WHERE id = %s", (user_id,))
+            user_data = cursor.fetchone()
 
-    # Fetch user details
-    cursor.execute("SELECT id, username, role, major FROM users WHERE id = %s", (user_id,))
-    user_data = cursor.fetchone()
+            if not user_data:
+                return None
 
-    if not user_data:
-        return None
+            # Initialize the user
+            user = User(
+                id=user_data['id'],
+                username=user_data['username'],
+                role=user_data['role'],
+                major=user_data['major']
+            )
 
-    # Initialize the user
-    user = User(
-        id=user_data['id'],
-        username=user_data['username'],
-        role=user_data['role'],
-        major=user_data['major']
-    )
+            # Fetch NFC tag data if exists
+            cursor.execute("SELECT tag_data FROM nfc_tags WHERE user_id = %s", (user_id,))
+            nfc_data = cursor.fetchall()  # You might have multiple NFC tags for one user
+            if nfc_data:
+                user.nfc_tags = [tag['tag_data'] for tag in nfc_data]
 
-    # Fetch NFC tag data if exists
-    cursor.execute("SELECT tag_data FROM nfc_tags WHERE user_id = %s", (user_id,))
-    nfc_data = cursor.fetchall()  # You might have multiple NFC tags for one user
-    if nfc_data:
-        user.nfc_tags = [tag['tag_data'] for tag in nfc_data]
+            # Fetch streak data if exists
+            cursor.execute("SELECT current_streak, longest_streak FROM streaks WHERE user_id = %s", (user_id,))
+            streak_data = cursor.fetchone()
+            if streak_data:
+                user.streak = streak_data['current_streak']
+                user.longest_streak = streak_data['longest_streak']
 
-    # Fetch streak data if exists
-    cursor.execute("SELECT current_streak, longest_streak FROM streaks WHERE user_id = %s", (user_id,))
-    streak_data = cursor.fetchone()
-    if streak_data:
-        user.streak = streak_data['current_streak']
-        user.longest_streak = streak_data['longest_streak']
+            # Fetch classes enrolled
+            cursor.execute("""
+                SELECT lessons.title 
+                FROM lessons 
+                JOIN student_lessons ON lessons.id = student_lessons.lesson_id 
+                WHERE student_lessons.student_id = %s
+            """, (user_id,))
+            classes = cursor.fetchall()
+            user.classes_enrolled = [lesson['title'] for lesson in classes]
 
-    # Fetch classes enrolled
-    cursor.execute("""
-        SELECT lessons.title 
-        FROM lessons 
-        JOIN student_lessons ON lessons.id = student_lessons.lesson_id 
-        WHERE student_lessons.student_id = %s
-    """, (user_id,))
-    classes = cursor.fetchall()
-    user.classes_enrolled = [lesson['title'] for lesson in classes]
-
-    cursor.close()
-    conn.close()
+    finally:
+        conn.close()
 
     return user
 

@@ -24,21 +24,26 @@
 </div>
 
 <!-- Navigation Menu -->
+<!-- Navigation Menu -->
 <div class="nav-menu" id="nav-menu">
     <div class="nav-buttons-container">
         <div class="nav-item"><a href="{{ url_for('profile') }}">Profile</a></div>
         <!-- Agenda Button -->
+        {% if current_user.role == 'TEACHER' %}
+        <div class="nav-item">
+            <a href="{{ url_for('teacher_attendance') }}">Agenda</a>
+        </div>
+        {% elif current_user.role == 'STUDENT' %}
         <div class="nav-item">
             <a href="{{ url_for('student_schedule') }}">Agenda</a>
         </div>
+        {% endif %}
+        <div class="nav-item"><a href="{{ url_for('select_student') }}">Student Performance</a></div>
         <div class="nav-item">
             <a href="{{ url_for('feedback_form') }}">Feedback</a>
         </div>
-        <div class="nav-item">
-            <a href="{{ url_for('logout') }}">Logout</a>
-        </div>
+        <div class="nav-item"><a href="{{ url_for('logout') }}">Logout</a></div>
     </div>
-</div>
 
 
 </body>
