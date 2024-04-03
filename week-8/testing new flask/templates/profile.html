@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Page</title>
+    <!-- Bootstrap CSS for styling and responsive design -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .streak-badge {
+            background-color: #f0ad4e; /* Orange color for the streak badge */
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+        }
+
+    </style>
+</head>
+<body>
+
+<!-- Navigation Bar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <a class="navbar-brand" href="#">MyApp</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
+            aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <div class="navbar-nav">
+            <a class="nav-item nav-link active" href="/student_agenda">Home <span class="sr-only">(current)</span></a>
+            <a class="nav-item nav-link" href="/profile">Profile</a>
+            <a class="nav-item nav-link" href="/student_agenda">Agenda</a>
+            <!-- Agenda Button -->
+            {% if current_user.role == 'TEACHER' %}
+            <div class="nav-item">
+                <a href="/bruh">Agenda</a>
+            </div>
+            {% elif current_user.role == 'STUDENT' %}
+            <div class="nav-item">
+                <a href="/student_agenda">Agenda</a>
+            </div>
+            {% endif %}
+
+            <!-- Dropdown for Account options including logout -->
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown"
+                   aria-haspopup="true" aria-expanded="false">
+                    Account
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                    <a class="dropdown-item" href="/profile">Settings</a>
+                    <a class="dropdown-item" href="/" onclick="confirmLogout()">Logout</a>
+                </div>
+            </li>
+        </div>
+    </div>
+</nav>
+
+<!-- Profile Content -->
+<div class="container mt-4">
+    <h1>Profile Page</h1>
+    <div class="profile-info mt-3">
+        <h2>Welcome, {{ user_info.username }}</h2>
+        <p><strong>Role:</strong> {{ user_info.role }}</p>
+        <p><span class="streak-badge">Current Streak: {{ current_streak }} classes</span></p>
+    </div>
+    <div class="upcoming-classes mt-4">
+        <h3>Upcoming Classes</h3>
+        <ul class="list-group">
+            {% for class in upcoming_classes %}
+            <li class="list-group-item">{{ class.date }} - {{ class.name }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+<!-- Logout Confirmation Script -->
+<script>
+function confirmLogout() {
+    const confirmed = confirm('Are you sure you want to log out?');
+    if (confirmed) {
+        window.location.href = '/logout'; // Directs to the logout route
+    }
+}
+
+</script>
+
+<!-- Bootstrap JS and dependencies for interactive components -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body>
+</html>

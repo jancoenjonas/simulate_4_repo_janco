@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Feedback Form</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='feedback_css.css') }}">
+    <script src="{{ url_for('static', filename='feedback_script.js') }}"></script>
+</head>
+<body>
+<div class="menu-icon" onclick="toggleNavMenu()">☰</div>
+
+<!-- Feedback Form -->
+<div class="feedback-container">
+    <h2>Feedback Form</h2>
+    <form action="{{ url_for('submit_feedback') }}" method="post">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+        <label for="message">Message:</label>
+        <textarea id="message" name="message" rows="4" required></textarea>
+        <input type="submit" value="Submit">
+    </form>
+</div>
+
+<div class="nav-menu" id="nav-menu">
+    <div class="nav-buttons-container">
+        <div class="nav-item"><a href="{{ url_for('profile') }}">Profile</a></div>
+        <!-- Agenda Button -->
+        {% if current_user.role == 'TEACHER' %}
+        <div class="nav-item">
+            <a href="{{ url_for('teacher_attendance') }}">Agenda</a>
+        </div>
+<div class="nav-item"><a href="{{ url_for('select_student') }}">Student Performance</a></div>
+
+        {% elif current_user.role == 'STUDENT' %}
+        <div class="nav-item">
+            <a href="{{ url_for('student_schedule') }}">Agenda</a>
+        </div>
+        {% endif %}
+        <div class="nav-item">
+            <a href="{{ url_for('feedback_form') }}">Feedback</a>
+        </div>
+        <div class="nav-item"><a href="{{ url_for('logout') }}">Logout</a></div>
+    </div>
+
+</body>
+</html>

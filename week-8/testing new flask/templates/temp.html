@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>-.-- --- ..- / ... .... --- ..- .-.. -.. / -. --- - / -... . / .... . .-. .</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            background: black;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            position: relative;
+            height: auto;
+            width: auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .color-div {
+            position: absolute;
+            height: 2px;
+            width: 50px; /* Adjust as necessary */
+            background-color: white;
+            animation: div-glitch 0.7s infinite;
+        }
+        .main-text, .countdown {
+            color: whitesmoke;
+            font-size: 30px; /* Adjust for countdown if needed */
+            font-family: 'Courier New', Courier, monospace;
+            letter-spacing: 3px; /* Increase letter-spacing for a more cryptic look */
+            animation: glitch 1s infinite;
+            text-shadow: 2px 2px 5px red; /* Shadow for a more ominous feel */
+        }
+        @keyframes glitch {
+            0% { text-shadow: 7px 2px red , -7px -2px aqua; }
+            12% { text-shadow: none; }
+            25% { text-shadow: 9px 2px red , -7px -2px aqua; }
+            36% { text-shadow: 7px 2px red , -7px -2px aqua; }
+            50% { text-shadow: 10px 2px red , -7px -2px aqua; }
+            62% { text-shadow: 7px 2px red , -10px -2px aqua; }
+            75% { text-shadow: 6px 2px red , -7px -2px aqua; }
+            88% { text-shadow: 7px 2px red , -6px -2px aqua; }
+            100% { text-shadow: 7px 2px red , -10px -2px aqua; }
+        }
+        @keyframes div-glitch {
+            0% { box-shadow: 7px 4px red , -13px -2px aqua; }
+            25% { box-shadow: 20px 2px red , -10px -2px aqua; }
+            50% { box-shadow: 3px 2px red , -7px -2px aqua; }
+            75% { box-shadow: 13px 6px red , -10px -2px aqua; }
+            100% { box-shadow: 7px 2px red , -10px -2px aqua; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="main-text"><em>#31!0~#0&~//0\\\\~^^0&3~70~(0^^3~1@73&**</em></h1>
+        <div class="color-div" style="top: 45%; left: 5%; width: 35px;"></div>
+        <div class="color-div" style="top: 53%; left: 26%; width: 20px;"></div>
+        <div class="color-div" style="top: 55%; left: 55%; width: 30px;"></div>
+        <div class="color-div" style="bottom: 42%; right: 12%; width: 10px;"></div>
+        <div class="color-div" style="bottom: 50%; left: 30%; width: 60px;"></div>
+        <div class="color-div" style="top: 46%; left: 60%; width: 70px;"></div>
+        <div class="color-div" style="bottom: 45%; left: 10%; width: 10px;"></div>
+        <div class="color-div" style="bottom: 55%; right: 20%; width: 15px;"></div>
+        <!-- Countdown Timer Display -->
+        <div id="countdown" class="countdown"></div>
+    </div>
+    <script>
+        // Set the date we're counting down to
+        var countDownDate = new Date("Dec 31, 2024 23:59:59").getTime();
+
+        // Update the count down every 1 second
+        var x = setInterval(function() {
+
+            // Get today's date and time
+            var now = new Date().getTime();
+
+            // Find the distance between now and the count down date
+            var distance = countDownDate - now;
+
+            // Time calculations for days, hours, minutes and seconds
+            var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            // Display the result in the element with id="countdown"
+            document.getElementById("countdown").innerHTML = days + "d " + hours + "h "
+            + minutes + "m " + seconds + "s ";
+
+            // If the count down is finished, write some text
+            if (distance < 0) {
+                clearInterval(x);
+                document.getElementById("countdown").innerHTML = "EXPIRED";
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

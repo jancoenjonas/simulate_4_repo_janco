@@ -1,0 +1,121 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f7f7f7;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+}
+th {
+    background-color: #f2f2f2;
+}
+.attended {
+    background-color: #90ee90; /* Green */
+}
+.missed {
+    background-color: #ffcccb; /* Red */
+}
+.upcoming {
+    background-color: #ffda89; /* Orange */
+}
+.no-class {
+    background-color: transparent;
+}
+
+.menu-icon {
+    cursor: pointer;
+    font-size: 24px;
+    padding: 20px;
+    position: fixed;
+    top: 30px; /* Increased top space */
+    left: 30px; /* Increased left space */
+    z-index: 1000;
+    color: #fff;
+    background-color: #007bff;
+    border-radius: 50%;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+.menu-icon:hover {
+    color: #fff;
+    background-color: #0056b3;
+}
+.nav-menu {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 999;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+.nav-menu.show {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 1;
+}
+.nav-buttons-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    border-radius: 20px;
+    background-color: #fff;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    transform: translateY(-20px);
+    transition: transform 0.3s ease-in-out;
+}
+.nav-buttons-container.show {
+    transform: translateY(0);
+}
+.nav-item {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+.nav-item.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+.nav-item:last-child {
+    margin-bottom: 0;
+}
+.nav-item a {
+    text-decoration: none;
+    color: #007bff;
+    font-size: 20px;
+    padding: 12px 30px;
+    border-radius: 30px;
+    transition: background-color 0.3s, color 0.3s;
+}
+.nav-item a:hover {
+    background-color: #0056b3;
+    color: #fff;
+}
+h1 {
+    text-align: center;
+    color: #007bff;
+    margin-top: 50px;
+    font-size: 36px;
+}
+.profile-container {
+    margin: 2em auto;
+    padding: 2em;
+    background: #fff;
+    border-radius: 20px;
+    width: fit-content;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}

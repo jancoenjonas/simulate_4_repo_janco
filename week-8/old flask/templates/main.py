@@ -1,6 +1,7 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_mail import Mail, Message
+import uuid
 from werkzeug.security import check_password_hash
 import mysql.connector
 from credentials import (MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DB,
@@ -34,7 +35,6 @@ def get_db_connection():
     return conn
 
 
-# Assuming you have a User class that has properties for id, username, role, major, nfc_tags, streak, longest_streak, and classes_enrolled
 class User(UserMixin):
     def __init__(self, id, username, role, major, nfc_tags=None, streak=0, longest_streak=0, classes_enrolled=None):
         self.id = id
@@ -50,52 +50,81 @@ class User(UserMixin):
 @login_manager.user_loader
 def load_user(user_id):
     conn = get_db_connection()
-    try:
-        with conn.cursor(dictionary=True) as cursor:
-            # Fetch user details
-            cursor.execute("SELECT id, username, role, major FROM users WHERE id = %s", (user_id,))
-            user_data = cursor.fetchone()
+    cursor = conn.cursor(dictionary=True)
 
-            if not user_data:
-                return None
+    # Fetch user details
+    cursor.execute("SELECT id, username, role, major FROM users WHERE id = %s", (user_id,))
+    user_data = cursor.fetchone()
 
-            # Initialize the user
-            user = User(
-                id=user_data['id'],
-                username=user_data['username'],
-                role=user_data['role'],
-                major=user_data['major']
-            )
+    if not user_data:
+        return None
 
-            # Fetch NFC tag data if exists
-            cursor.execute("SELECT tag_data FROM nfc_tags WHERE user_id = %s", (user_id,))
-            nfc_data = cursor.fetchall()  # You might have multiple NFC tags for one user
-            if nfc_data:
-                user.nfc_tags = [tag['tag_data'] for tag in nfc_data]
+    # Initialize the user
+    user = User(
+        id=user_data['id'],
+        username=user_data['username'],
+        role=user_data['role'],
+        major=user_data['major']
+    )
 
-            # Fetch streak data if exists
-            cursor.execute("SELECT current_streak, longest_streak FROM streaks WHERE user_id = %s", (user_id,))
-            streak_data = cursor.fetchone()
-            if streak_data:
-                user.streak = streak_data['current_streak']
-                user.longest_streak = streak_data['longest_streak']
+    # Fetch NFC tag data if exists
+    cursor.execute("SELECT tag_data FROM nfc_tags WHERE user_id = %s", (user_id,))
+    nfc_data = cursor.fetchall()  # You might have multiple NFC tags for one user
+    if nfc_data:
+        user.nfc_tags = [tag['tag_data'] for tag in nfc_data]
 
-            # Fetch classes enrolled
-            cursor.execute("""
-                SELECT lessons.title 
-                FROM lessons 
-                JOIN student_lessons ON lessons.id = student_lessons.lesson_id 
-                WHERE student_lessons.student_id = %s
-            """, (user_id,))
-            classes = cursor.fetchall()
-            user.classes_enrolled = [lesson['title'] for lesson in classes]
+    # Fetch streak data if exists
+    cursor.execute("SELECT current_streak, longest_streak FROM streaks WHERE user_id = %s", (user_id,))
+    streak_data = cursor.fetchone()
+    if streak_data:
+        user.streak = streak_data['current_streak']
+        user.longest_streak = streak_data['longest_streak']
 
-    finally:
-        conn.close()
+    # Fetch classes enrolled
+    cursor.execute("""
+        SELECT lessons.name
+        FROM lessons
+        JOIN student_lessons ON lessons.id = student_lessons.lesson_id
+        WHERE student_lessons.student_id = %s
+    """, (user_id,))
+    classes = cursor.fetchall()
+    user.classes_enrolled = [lesson['name'] for lesson in classes]
+
+    cursor.close()
+    conn.close()
 
     return user
+# test code for api uses
 
 
+@app.route('/api/user/<uuid:user_id>', methods=['GET'])
+@login_required
+def get_user_profile(user_id):
+    # Since the user_id is now a UUID object, convert it to a string for database queries
+    user_id_str = str(user_id)
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM users WHERE id = %s", (user_id_str,))
+    user_details = cursor.fetchone()
+    cursor.close()
+    conn.close()
+
+    if not user_details:
+        return jsonify({"error": "User not found"}), 404
+
+    # Optionally, include more data such as streaks, classes enrolled, etc.
+    return jsonify(user_details)
+
+
+
+
+
+
+
+
+
+#code that  is for site wrorks
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -126,32 +155,6 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('login'))
-
-
-@app.route('/test')
-def test():
-    # Database connection parameters
-    db_config = {
-        'host': 'localhost',
-        'user': 'root',
-        'password': 'November0611..',
-        'database': 'flask_local_database_test'
-    }
-
-    # Connect to the database
-    db_connection = mysql.connector.connect(**db_config)
-    cursor = db_connection.cursor(dictionary=True)
-
-    # Query the database for lessons
-    cursor.execute("SELECT * FROM lessons")
-    lessons = cursor.fetchall()
-
-    # Close the connection
-    cursor.close()
-    db_connection.close()
-
-    # Pass the lessons to the template
-    return render_template('test.html', lessons=lessons)
 
 
 @app.route('/')
@@ -186,7 +189,6 @@ def get_lesson_name_for_hour(lessons, hour):
         if lesson_hour == hour:
             return lesson['name']
     return ''
-
 
 @app.route('/profile')
 @login_required
@@ -233,17 +235,16 @@ def profile():
 
     # Determine user's placement for current streak
     cursor.execute("SELECT COUNT(*)+1 AS `rank` FROM streaks WHERE current_streak > %s", (current_streak,))
-
     current_streak_rank = cursor.fetchone()['rank']
 
     # Fetch user's enrolled classes
     cursor.execute(
-        "SELECT DISTINCT l.title FROM lessons l "
-        "JOIN student_lessons ON l.id = student_lessons.lesson_id "
+        "SELECT DISTINCT lessons.name FROM lessons "
+        "JOIN student_lessons ON lessons.id = student_lessons.lesson_id "
         "WHERE student_lessons.student_id = %s",
         (current_user.id,))
     classes = cursor.fetchall()
-    classes_enrolled = [cls['title'] for cls in classes]
+    classes_enrolled = [cls['name'] for cls in classes] if classes else []
 
     cursor.close()
     conn.close()
@@ -261,12 +262,14 @@ def profile():
                            current_streak_rank=current_streak_rank)
 
 
+
+
 @app.route('/student/schedule')
 @login_required
 def student_schedule():
     if current_user.role != 'STUDENT':
         return "Access Denied", 403
-    '''
+
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     # Updated query to join with student_lessons table
@@ -285,21 +288,6 @@ def student_schedule():
         schedule[lesson['day']].append(lesson)
 
     return render_template('student_schedule.html', schedule=schedule)
-'''
-    # Connect to the database
-    db_connection = mysql.connector.connect(**db_config)
-    cursor = db_connection.cursor(dictionary=True)
-
-    # Query the database for lessons
-    cursor.execute("SELECT * FROM lessons")
-    lessons = cursor.fetchall()
-
-    # Close the connection
-    cursor.close()
-    db_connection.close()
-
-    # Pass the lessons to the template
-    return render_template('test.html', lessons=lessons)
 
 
 @app.route('/teacher/attendance')
@@ -310,10 +298,10 @@ def teacher_attendance():
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    '''
+
     # Fetch the lessons taught by the teacher and attendance ordered by student
     cursor.execute("""
-        SELECT u.username, u.id as student_id, l.day, l.time, l.name as lesson_name, 
+        SELECT u.username, u.id as student_id, l.day, l.time, l.name as lesson_name,
                l.attendance, l.id as lesson_id
         FROM student_lessons sl
         JOIN lessons l ON sl.lesson_id = l.id
@@ -343,29 +331,7 @@ def teacher_attendance():
     conn.close()
 
     return render_template('teacher_attendance.html', attendance_data=attendance_data)
-'''
-    # Database connection parameters
-    db_config = {
-        'host': 'localhost',
-        'user': 'root',
-        'password': 'November0611..',
-        'database': 'flask_local_database_test'
-    }
 
-    # Connect to the database
-    db_connection = mysql.connector.connect(**db_config)
-    cursor = db_connection.cursor(dictionary=True)
-
-    # Query the database for lessons
-    cursor.execute("SELECT * FROM lessons")
-    lessons = cursor.fetchall()
-
-    # Close the connection
-    cursor.close()
-    db_connection.close()
-
-    # Pass the lessons to the template
-    return render_template('test.html', lessons=lessons)
 
 
 @app.route('/teacher/student_performance/<student_id>')
@@ -418,7 +384,6 @@ def select_student():
 def feedback_form():
     return render_template('feedback_form.html')
 
-
 @app.route('/submit_feedback', methods=['POST'])
 @login_required
 def submit_feedback():
@@ -454,6 +419,7 @@ def submit_feedback():
         return redirect(url_for('feedback_form'))
 
 
+
 @app.route('/update_attendance', methods=['POST'])
 @login_required
 def update_attendance():
@@ -481,8 +447,8 @@ def update_attendance():
         # Execute the SQL query to update the attendance
         # Assuming there is an attendance column in the student_lessons join table
         cursor.execute("""
-            UPDATE student_lessons 
-            SET attendance = %s 
+            UPDATE student_lessons
+            SET attendance = %s
             WHERE student_id = %s AND lesson_id = %s
         """, (new_status, student_id, lesson_id))
         conn.commit()
@@ -505,6 +471,9 @@ def update_attendance():
     # Return a success message
     return {"message": message}
 
+@app.route('/secret')
+def secret_hunt():
+    return render_template('secret_hunt.html')
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
