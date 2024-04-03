@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Profile</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='profile_css.css') }}">
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+   <script src="{{ url_for('static', filename='script.js') }}"></script>
 
 </head>
 <body>
@@ -54,7 +54,7 @@
     </div>
 
     <!-- Scoreboard Sections -->
-    <!-- Top Longest Streaks -->
+  <!-- Top Longest Streaks -->
     <div class="profile-section arcade-scoreboard">
         <h2>Top Longest Streaks</h2>
         <ol>
@@ -88,7 +88,6 @@
     </div>
 
 </div>
-<!-- Navigation Menu -->
 <div class="nav-menu" id="nav-menu">
     <div class="nav-buttons-container">
         <div class="nav-item"><a href="{{ url_for('profile') }}">Profile</a></div>
@@ -97,27 +96,19 @@
         <div class="nav-item">
             <a href="{{ url_for('teacher_attendance') }}">Agenda</a>
         </div>
+<div class="nav-item"><a href="{{ url_for('select_student') }}">Student Performance</a></div>
+
         {% elif current_user.role == 'STUDENT' %}
         <div class="nav-item">
             <a href="{{ url_for('student_schedule') }}">Agenda</a>
         </div>
         {% endif %}
-        <div class="nav-item"><a href="{{ url_for('select_student') }}">Student Performance</a></div>
         <div class="nav-item">
             <a href="{{ url_for('feedback_form') }}">Feedback</a>
         </div>
         <div class="nav-item"><a href="{{ url_for('logout') }}">Logout</a></div>
     </div>
-    <script>
-        function toggleNavMenu() {
-            var menu = document.getElementById('nav-menu');
-            if (menu.style.display === 'flex') {
-                menu.style.display = 'none';
-            } else {
-                menu.style.display = 'flex';
-            }
-        }
 
-    </script>
+
 </body>
 </html>
