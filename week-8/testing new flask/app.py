@@ -15,8 +15,8 @@ login_manager.login_view = 'home'
 # Database connectie configuratie
 db_config = {
     'host': 'localhost',
-    'user': 'root',
-    'password': 'November0611..',
+    'user': 'X',
+    'password': 'Y',
     'database': 'flask_local_database_test_2'
 }
 
