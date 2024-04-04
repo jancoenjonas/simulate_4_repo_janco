@@ -2,9 +2,7 @@
 #include <SPI.h>
 #include <MFRC522.h>
 
-// WiFi network settings
-const char* ssid = "YOUR_WIFI_SSID";
-const char* password = "YOUR_WIFI_PASSWORD";
+
 
 // Server settings (Arduino Uno R4 ESP32 IP and port)
 const char* serverIP = "ARDUINO_UNO_R4_ESP32_IP";
