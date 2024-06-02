@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Student Agenda</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .ATTENDED { background-color: #90ee90; } /* light green */
+        .LATE { background-color: #ffffe0; } /* light yellow */
+        .ABSENT { background-color: #ffcccb; } /* light red */
+        .lesson { padding: 10px; margin-bottom: 5px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+
+<!-- Navigation Bar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <a class="navbar-brand" href="#">MyApp</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <div class="navbar-nav">
+            <a class="nav-item nav-link active" href="/">Home <span class="sr-only">(current)</span></a>
+            <a class="nav-item nav-link" href="/profile">Profile</a>
+            <a class="nav-item nav-link" href="/student_agenda">Agenda</a>
+            <!-- Dropdown for Account options including logout -->
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Account
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                    <a class="dropdown-item" href="/profile">Settings</a>
+                    <a class="dropdown-item" href="#" onclick="confirmLogout()">Logout</a>
+                </div>
+            </li>
+        </div>
+    </div>
+</nav>
+<!-- Student Agenda Content -->
+<div class="container">
+    <h1 class="mt-4">Student Agenda</h1>
+    {% for lesson in lessons %}
+        <div class="lesson {{ lesson.attendance_status }} my-2 p-2">
+            <strong>{{ lesson.name }}</strong> <br>
+            Date: {{ lesson.date }} <br>
+            Time: {{ lesson.start_time }} - {{ lesson.end_time }} <br>
+            Attendance Status: {{ lesson.attendance_status or 'Not Marked' }}
+        </div>
+    {% endfor %}
+</div>
+
+<!-- Bootstrap JS and dependencies -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body>
+</html>

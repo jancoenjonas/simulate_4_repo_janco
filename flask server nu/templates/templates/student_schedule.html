@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Student Schedule</title>
+    <link href='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.0/fullcalendar.min.css' rel='stylesheet'/>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='feedback_css.css') }}">
+    <style>
+        #calendar {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+<div class="menu-icon" onclick="toggleNavMenu()">☰</div>
+
+<!-- Navigation Menu -->
+<div class="nav-menu" id="nav-menu">
+    <div class="nav-buttons-container">
+        <div class="nav-item"><a href="{{ url_for('profile') }}">Profile</a></div>
+        <!-- Agenda Button -->
+        <div class="nav-item">
+            <a href="{{ url_for('student_schedule') }}">Agenda</a>
+        </div>
+        <div class="nav-item">
+            <a href="{{ url_for('feedback_form') }}">Feedback</a>
+        </div>
+        <div class="nav-item">
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+    </div>
+</div>
+
+<div id="calendar" style="margin-top: 100px;"></div>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.0/fullcalendar.min.js'></script>
+<script src="{{ url_for('static', filename='feedback_script.js') }}"></script>
+<script>
+$(document).ready(function() {
+    var schedule = [
+            ['Improve 3 Semi1 - Hoorcollege', '08:30:00', '10:00:00', 1, '#99BDEF', 'Hoorcollege', 'GR-IoT-IoT2.1', 'Hoboken', 'HO-B.01.08b'],
+            ['Improve 3 Semi1 - Werkcollege', '10:45:00', '12:45:00', 1, '#F7B85B', 'Werkcollege', 'GR-IoT-IoT2.1', 'Hoboken', 'HO-B.01.08b'],
+            ['make 3 Semi1 - Hoorcollege', '13:30:00', '15:30:00', 1, '#99BDEF', 'Hoorcollege', 'GR-IoT-IoT2.1', 'Hoboken', 'HO-A.00.23'],
+            ['make 3 Semi1 - Werkcollege', '15:45:00', '17:45:00', 1, '#F7B85B', 'Werkcollege', 'GR-IoT-IoT2.1', 'Hoboken', 'HO-B.01.09'],
+            ['Build 3 Semi1 - Praktijk', '08:30:00', '10:30:00', 2, '#F7B85B', 'Praktijk', 'GR-IoT-IoT2.1', 'Hoboken', 'HO-A.00.23'],
+            ['Improve 3 Semi1 - Praktijk', '10:45:00', '11:45:00', 2, '#F7B85B', 'Praktijk', 'GR-IoT-IoT2.1', 'Hoboken', 'HO-B.01.05'],
+            ['apply', '12:30:00', '15:00:00', 2, '#F7B85B', 'Praktijk', 'GR-IoT-IoT2.1', 'Hoboken', 'HO-A.02.06'],
+            ['Build 3 Semi1 - Hoorcollege', '13:30:00', '15:30:00', 4, '#99BDEF', 'Hoorcollege', 'GR-IoT-IoT2.1', 'Hoboken', 'HO-A.00.23'],
+            ['Build 3 Semi1 - Werkcollege', '15:45:00', '17:45:00', 4, '#F7B85B', 'Werkcollege', 'GR-IoT-IoT2.1', 'Hoboken', 'HO-A.00.23'],
+            ['Build 3 Semi1 - Praktijk', '10:45:00', '12:45:00', 5, '#F7B85B', 'Praktijk', 'GR-IoT-IoT2.1', 'Hoboken', 'HO-A.00.23'],
+            ['Make 3 Semi1 - Praktijk', '13:30:00', '15:30:00', 5, '#F7B85B', 'Praktijk', 'GR-IoT-IoT2.1', 'Hoboken', 'HO-A.00.23']
+        ];
+
+    var numberOfWeeks = 15; // Number of weeks to generate events for
+    var calendarEvents = [];
+
+    for (var week = 0; week < numberOfWeeks; week++) {
+        schedule.forEach(function(lesson) {
+            var dayIndex = lesson[3] % 7;
+            var startDate = moment().startOf('week').add(week, 'weeks').add(dayIndex, 'days').format('YYYY-MM-DD');
+            calendarEvents.push({
+                title: lesson[0] + ' (' + lesson[5] + ')',
+                start: startDate + 'T' + lesson[1],
+                end: startDate + 'T' + lesson[2],
+                color: lesson[4],
+                description: lesson[6] + ', ' + lesson[7] + ' ' + lesson[8]
+            });
+        });
+    }
+
+    $('#calendar').fullCalendar({
+        defaultView: 'agendaWeek',
+        header: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'agendaDay,agendaWeek,month'
+        },
+        events: calendarEvents,
+        eventRender: function(event, element) {
+            element.find('.fc-title').append('<br/>' + event.description);
+        }
+    });
+});
+</script>
+</body>
+</html>
